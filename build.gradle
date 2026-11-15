@@ -1,0 +1,206 @@
+import javax.imageio.ImageIO
+import java.awt.image.BufferedImage
+
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'net.neoforged.moddev' version '2.0.148'
+    id 'idea'
+}
+
+// Each source contains eight stages; infer rectangular frame dimensions from the strip direction.
+abstract class SplitCropTextures extends DefaultTask {
+    @InputDirectory
+    @PathSensitive(PathSensitivity.RELATIVE)
+    abstract DirectoryProperty getAtlasDirectory()
+
+    @Input
+    abstract Property<Integer> getStageCount()
+
+    SplitCropTextures() {
+        stageCount.convention(8)
+    }
+
+    @OutputDirectory
+    abstract DirectoryProperty getOutputDirectory()
+
+    @javax.inject.Inject
+    abstract org.gradle.api.file.FileSystemOperations getFileSystemOperations()
+
+    @TaskAction
+    void split() {
+        int count = stageCount.get()
+        if (count <= 0) throw new GradleException('Crop stage count must be positive.')
+        def atlas = atlasDirectory.get().asFile.toPath()
+        def sources = []
+        atlas.toFile().eachFileRecurse(groovy.io.FileType.FILES) { file ->
+            if (file.name.toLowerCase(java.util.Locale.ROOT).endsWith('.png')) sources.add(file)
+        }
+        // Validate all sources before replacing this task's generated output.
+        def strips = sources.sort { it.path }.collect { file ->
+            def source = ImageIO.read(file)
+            if (source == null) throw new GradleException("Crop atlas " + file + " must be a readable PNG.")
+            if (source.height == source.width) {
+                throw new GradleException("Crop atlas " + file + " is square; strip direction is ambiguous.")
+            }
+            boolean vertical = source.height > source.width
+            int length = vertical ? source.height : source.width
+            if (length % count != 0) {
+                throw new GradleException("Crop atlas " + file + ": long edge must be divisible by " + count + " stages.")
+            }
+            int width = vertical ? source.width : length.intdiv(count)
+            int height = vertical ? length.intdiv(count) : source.height
+            def relative = atlas.relativize(file.toPath()).toString()
+            [image: source, name: relative.substring(0, relative.length() - 4),
+             vertical: vertical, width: width, height: height]
+        }
+        def destination = outputDirectory.get().asFile
+        // Remove obsolete slices when an atlas is deleted or renamed.
+        fileSystemOperations.delete { delete(destination) }
+        destination.mkdirs()
+        strips.each { strip ->
+            int width = strip.width
+            int height = strip.height
+            for (int stage = 0; stage < count; stage++) {
+                int x = strip.vertical ? 0 : stage * width
+                int y = strip.vertical ? stage * height : 0
+                def frame = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
+                frame.setRGB(0, 0, width, height,
+                    strip.image.getRGB(x, y, width, height, null, 0, width), 0, width)
+                def output = new File(destination, strip.name + '_stage' + stage + '.png')
+                output.parentFile.mkdirs()
+                if (!ImageIO.write(frame, 'png', output)) {
+                    throw new GradleException("Cannot write crop stage texture " + output)
+                }
+            }
+        }
+    }
+}
+
+def cropResources = layout.buildDirectory.dir('generated/resources/crops')
+def splitCropTextures = tasks.register('splitCropTextures', SplitCropTextures) {
+    atlasDirectory = layout.projectDirectory.dir('src/main/resources/assets/farmlifecrops/textures/block/atlas')
+    outputDirectory = cropResources.map { it.dir('assets/farmlifecrops/textures/block') }
+}
+sourceSets.main.resources.srcDir(cropResources)
+tasks.named('processResources') {
+    dependsOn(splitCropTextures)
+}
+
+tasks.named('wrapper', Wrapper).configure {
+    distributionType = Wrapper.DistributionType.BIN
+}
+
+version = mod_version
+group = mod_group_id
+
+sourceSets.main.resources {
+    srcDir('src/generated/resources')
+
+    exclude("**/*.bbmodel") // BlockBench project files
+    exclude("src/generated/**/.cache") // datagen cache files
+}
+
+repositories {
+    mavenLocal()
+}
+
+base {
+    archivesName = mod_id
+}
+
+// Mojang ships Java 25 to end users in 26.3, so mods should target Java 25.
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+
+neoForge {
+    version = project.neo_version
+
+    runs {
+        client {
+            client()
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        server {
+            server()
+            programArgument '--nogui'
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        gameTestServer {
+            type = "gameTestServer"
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        data {
+            clientData()
+            systemProperty 'farmlifecrops.translationSources', file('src/main/translations').absolutePath
+
+            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+        }
+
+        configureEach {
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+
+            logLevel = org.slf4j.event.Level.DEBUG
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+configurations {
+    runtimeClasspath.extendsFrom localRuntime
+}
+
+dependencies {
+
+    implementation 'net.aquiferic.diversitycore:diversitycore:0.1.8'
+}
+
+var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
+    var replaceProperties = [
+            minecraft_version          : minecraft_version,
+            minecraft_version_range    : minecraft_version_range,
+            neo_version                : neo_version,
+            mod_id                     : mod_id,
+            mod_name                   : mod_name,
+            mod_license                : mod_license,
+            mod_version                : mod_version,
+            diversitycore_version_range: diversitycore_version_range
+    ]
+    inputs.properties replaceProperties
+    expand replaceProperties
+    from "src/main/templates"
+    into "build/generated/sources/modMetadata"
+}
+sourceSets.main.resources.srcDir generateModMetadata
+neoForge.ideSyncTask generateModMetadata
+
+publishing {
+    publications {
+        register('mavenJava', MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url "file://${project.projectDir}/repo"
+        }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}

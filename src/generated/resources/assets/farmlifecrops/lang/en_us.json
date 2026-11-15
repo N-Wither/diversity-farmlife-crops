@@ -1,0 +1,23 @@
+{
+  "block.farmlifecrops.broccoli": "Broccoli",
+  "block.farmlifecrops.cabbage": "Cabbage",
+  "block.farmlifecrops.cauliflower": "Cauliflower",
+  "block.farmlifecrops.corn": "Corn",
+  "block.farmlifecrops.garlic": "Garlic",
+  "block.farmlifecrops.red_cabbage": "Red Cabbage",
+  "block.farmlifecrops.tomato": "Tomato",
+  "item.farmlifecrops.broccoli": "Broccoli",
+  "item.farmlifecrops.broccoli_seeds": "Broccoli Seeds",
+  "item.farmlifecrops.cabbage": "Cabbage",
+  "item.farmlifecrops.cabbage_seeds": "Cabbage Seeds",
+  "item.farmlifecrops.cauliflower": "Cauliflower",
+  "item.farmlifecrops.cauliflower_seeds": "Cauliflower Seeds",
+  "item.farmlifecrops.corn": "Corn",
+  "item.farmlifecrops.corn_seeds": "Corn Kernel",
+  "item.farmlifecrops.garlic": "Garlic",
+  "item.farmlifecrops.red_cabbage": "Red Cabbage",
+  "item.farmlifecrops.red_cabbage_seeds": "Red Cabbage Seeds",
+  "item.farmlifecrops.tomato": "Tomato",
+  "item.farmlifecrops.tomato_seeds": "Tomato Seeds",
+  "itemGroup.farmlifecrops": "FarmLife Crops"
+}

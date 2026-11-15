@@ -1,0 +1,94 @@
+{
+  "parent": "minecraft:block/cross",
+  "elements": [
+    {
+      "faces": {
+        "north": {
+          "texture": "#cross",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#cross",
+          "uv": [
+            16,
+            0,
+            0,
+            16
+          ]
+        }
+      },
+      "from": [
+        0.8,
+        0.0,
+        8.0
+      ],
+      "rotation": {
+        "angle": 45,
+        "axis": "y",
+        "origin": [
+          8.0,
+          8.0,
+          8.0
+        ],
+        "rescale": true
+      },
+      "shade_direction_override": "up",
+      "to": [
+        15.2,
+        16.0,
+        8.0
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "texture": "#cross",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#cross",
+          "uv": [
+            16,
+            0,
+            0,
+            16
+          ]
+        }
+      },
+      "from": [
+        0.8,
+        0.0,
+        8.0
+      ],
+      "rotation": {
+        "angle": -45,
+        "axis": "y",
+        "origin": [
+          8.0,
+          8.0,
+          8.0
+        ],
+        "rescale": true
+      },
+      "shade_direction_override": "up",
+      "to": [
+        15.2,
+        16.0,
+        8.0
+      ]
+    }
+  ],
+  "textures": {
+    "cross": "farmlifecrops:block/broccoli_stage2"
+  }
+}

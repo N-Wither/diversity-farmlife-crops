@@ -1,0 +1,23 @@
+{
+    "itemGroup.farmlifecrops": "农场人生：作物",
+    "item.farmlifecrops.cabbage": "卷心菜",
+    "item.farmlifecrops.cabbage_seeds": "卷心菜种子",
+    "item.farmlifecrops.tomato": "番茄",
+    "item.farmlifecrops.tomato_seeds": "番茄种子",
+    "item.farmlifecrops.red_cabbage": "紫甘蓝",
+    "item.farmlifecrops.red_cabbage_seeds": "紫甘蓝种子",
+    "item.farmlifecrops.cauliflower": "花椰菜",
+    "item.farmlifecrops.cauliflower_seeds": "花椰菜种子",
+    "item.farmlifecrops.broccoli": "西兰花",
+    "item.farmlifecrops.broccoli_seeds": "西兰花种子",
+    "item.farmlifecrops.garlic": "大蒜",
+    "item.farmlifecrops.corn": "玉米",
+    "item.farmlifecrops.corn_seeds": "玉米粒",
+    "block.farmlifecrops.cabbage": "卷心菜",
+    "block.farmlifecrops.tomato": "番茄",
+    "block.farmlifecrops.red_cabbage": "紫甘蓝",
+    "block.farmlifecrops.cauliflower": "花椰菜",
+    "block.farmlifecrops.broccoli": "西兰花",
+    "block.farmlifecrops.garlic": "大蒜",
+    "block.farmlifecrops.corn": "玉米"
+}
