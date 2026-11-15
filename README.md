@@ -1,8 +1,13 @@
 # Diversity FarmLife Crops
 
+> [!IMPORTANT]
+> Requires [Diversity Core](https://github.com/n-wither/diversitycore).
+
 A mod that adds new crops to Minecraft.
 
 I want to collect a full set of different crops in my modpack but ended with tomatoes from 8 different mods, this is why I decided to make this mod.
+
+Part of Diversity Mods & FarmLife Series.
 
 ## Development
 
@@ -27,15 +32,3 @@ New crop declarations still require `runData` to generate models and translation
 Item textures by [Glionox](https://glionox.itch.io/items16).
 
 Crop block textures by me, inspired by Glionox's work.
-
-## 作物阶段贴图
-
-作物可在声明时使用 `.textureRatio(1, 2)` 配合 16×32 阶段贴图；需要包含此 API 的新版 Diversity Core。
-修改声明后运行 `runData` 重新生成模型。
-
-`splitCropTextures` 默认将每张 atlas 等分为 8 个阶段，根据整张图片的长边识别方向：
-高度更大时从上到下，宽度更大时从左到右，输出仍为 `<名称>_stage0.png` 至 `_stage7.png`。
-例如 16×256 或 128×32 都输出 8 张 16×32；原有 16×128 仍输出 8 张 16×16。
-阶段尺寸直接由条带尺寸和阶段数推导，无需在 Gradle 中重复配置比例，但应与 Java 声明一致。
-正方形 atlas 无法确定方向，会报错；长边必须能被阶段数整除。
-此任务的 `stageCount` 可统一设置，默认 8，与当前 `createSimple()` 作物一致。
